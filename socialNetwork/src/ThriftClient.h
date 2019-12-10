@@ -25,7 +25,7 @@ using apache::thrift::TException;
 template<class TThriftClient>
 class ThriftClient : public GenericClient {
  public:
-  ThriftClient(const std::string &addr, int port);
+  ThriftClient(const std::string &addr, int port, int keep_alive = 1000);
 
   ThriftClient(const ThriftClient &) = delete;
   ThriftClient &operator=(const ThriftClient &) = delete;
@@ -38,9 +38,9 @@ class ThriftClient : public GenericClient {
 
   void Connect() override;
   void Disconnect() override;
-  void KeepAlive() override;
-  void KeepAlive(int timeout_ms) override;
+  void KeepAlive(int keep_alive = 1000) override;
   bool IsConnected() override;
+  bool IsAlive() override;
 
  private:
   TThriftClient *_client;
@@ -52,9 +52,11 @@ class ThriftClient : public GenericClient {
 
 template<class TThriftClient>
 ThriftClient<TThriftClient>::ThriftClient(
-    const std::string &addr, int port) {
+    const std::string &addr, int port, int keep_alive) {
   _addr = addr;
   _port = port;
+  _keep_alive = keep_alive;
+  if (_keep_alive)  KeepAlive(_keep_alive);
   _socket = std::shared_ptr<TTransport>(new TSocket(addr, port));
   _transport = std::shared_ptr<TTransport>(new TFramedTransport(_socket));
   _protocol = std::shared_ptr<TProtocol>(new TBinaryProtocol(_transport));
@@ -99,15 +101,22 @@ void ThriftClient<TThriftClient>::Disconnect() {
   }
 }
 
-template<class TThriftClient>
-void ThriftClient<TThriftClient>::KeepAlive() {
-
-}
-
 // TODO: Implement KeepAlive Timeout
 template<class TThriftClient>
-void ThriftClient<TThriftClient>::KeepAlive(int timeout_ms) {
+void ThriftClient<TThriftClient>::KeepAlive(int keep_alive) {
+  _alive_until = std::chrono::duration_cast<std::chrono::milliseconds>(
+    std::chrono::system_clock::now().time_since_epoch()).count() + keep_alive;
+}
 
+template<class TThriftClient>
+bool ThriftClient<TThriftClient>::IsAlive() {
+  if (_keep_alive) {
+    long long now = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
+    return now < _alive_until;
+  }
+  else
+    return true;
 }
 
 } // namespace social_network
