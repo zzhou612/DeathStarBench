@@ -16,7 +16,7 @@ template<class TClient>
 class ClientPool {
  public:
   ClientPool(const std::string &client_type, const std::string &addr,
-      int port, int min_size, int max_size, int timeout_ms);
+      int port, int min_size, int max_size, int timeout_ms, int keep_alive=-1);
   ~ClientPool();
 
   ClientPool(const ClientPool&) = delete;
@@ -26,7 +26,6 @@ class ClientPool {
 
   TClient * Pop();
   void Push(TClient *);
-  void Push(TClient *, int);
   void Remove(TClient *);
 
  private:
@@ -38,6 +37,7 @@ class ClientPool {
   int _max_pool_size{};
   int _curr_pool_size{};
   int _timeout_ms;
+  int _keep_alive;
   std::mutex _mtx;
   std::condition_variable _cv;
 
@@ -46,16 +46,17 @@ class ClientPool {
 template<class TClient>
 ClientPool<TClient>::ClientPool(const std::string &client_type,
     const std::string &addr, int port, int min_pool_size,
-    int max_pool_size, int timeout_ms) {
+    int max_pool_size, int timeout_ms, int keep_alive) {
   _addr = addr;
   _port = port;
   _min_pool_size = min_pool_size;
   _max_pool_size = max_pool_size;
   _timeout_ms = timeout_ms;
+  _keep_alive = keep_alive;
   _client_type = client_type;
 
   for (int i = 0; i < min_pool_size; ++i) {
-    TClient *client = new TClient(addr, port);
+    TClient *client = new TClient(addr, port, _keep_alive);
     _pool.emplace_back(client);
   }
   _curr_pool_size = min_pool_size;
@@ -78,7 +79,7 @@ TClient * ClientPool<TClient>::Pop() {
       // the max pool size.
       if (_curr_pool_size < _max_pool_size) {
         try {
-          client = new TClient(_addr, _port);
+          client = new TClient(_addr, _port, _keep_alive);
           _curr_pool_size++;
           break;
         } catch (...) {
@@ -100,6 +101,11 @@ TClient * ClientPool<TClient>::Pop() {
     if (!client){
       client = _pool.front();
       _pool.pop_front();
+      // if (!client->IsAlive() || !client->IsConnected()) {
+      // if (!client->IsAlive()) {
+      //   delete client;
+      //   client = new TClient(_addr, _port, _keep_alive);
+      // }
     }
 
   } // cv_lock(_mtx)
@@ -120,16 +126,6 @@ TClient * ClientPool<TClient>::Pop() {
 template<class TClient>
 void ClientPool<TClient>::Push(TClient *client) {
   std::unique_lock<std::mutex> cv_lock(_mtx);
-  client->KeepAlive();
-  _pool.push_back(client);
-  cv_lock.unlock();
-  _cv.notify_one();
-}
-
-template<class TClient>
-void ClientPool<TClient>::Push(TClient *client, int timeout_ms) {
-  std::unique_lock<std::mutex> cv_lock(_mtx);
-  client->KeepAlive(timeout_ms);
   _pool.push_back(client);
   cv_lock.unlock();
   _cv.notify_one();

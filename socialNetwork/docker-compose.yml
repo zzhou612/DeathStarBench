@@ -100,10 +100,10 @@ services:
       - write-home-timeline-rabbitmq
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       placement:
         constraints:
-          - node.hostname == ath-1
+          - node.hostname == ath-4
 
   compose-post-redis:
     image: redis
