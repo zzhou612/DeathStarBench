@@ -41,11 +41,11 @@ int main(int argc, char *argv[]) {
   std::string post_storage_addr = config_json["post-storage-service"]["addr"];
 
   ClientPool<RedisClient> redis_client_pool("home-timeline-redis",
-      redis_addr, redis_port, 0, 128, 1000);
+      redis_addr, redis_port, 0, 1024, 1000);
 
   ClientPool<ThriftClient<PostStorageServiceClient>>
       post_storage_client_pool("post-storage-client", post_storage_addr,
-                               post_storage_port, 0, 128, 1000);
+                               post_storage_port, 0, 1024, 1000);
 
   TThreadedServer server (
       std::make_shared<HomeTimelineServiceProcessor>(

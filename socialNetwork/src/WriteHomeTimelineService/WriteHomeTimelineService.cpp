@@ -175,12 +175,12 @@ int main(int argc, char *argv[]) {
   int social_graph_service_port = config_json["social-graph-service"]["port"];
 
   ClientPool<RedisClient> redis_client_pool("redis", redis_addr, redis_port,
-                                            0, 128, 1000);
+                                            0, 256, 1000);
 
   ClientPool<ThriftClient<SocialGraphServiceClient>>
       social_graph_client_pool(
           "social-graph-service", social_graph_service_addr,
-          social_graph_service_port, 0, 128, 1000);
+          social_graph_service_port, 0, 512, 1000);
 
   _redis_client_pool = &redis_client_pool;
   _social_graph_client_pool = &social_graph_client_pool;

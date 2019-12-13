@@ -40,9 +40,9 @@ int main(int argc, char *argv[]) {
   int social_graph_port = config_json["social-graph-service"]["port"];
 
   memcached_pool_st *memcached_client_pool =
-      init_memcached_client_pool(config_json, "user", 32, 128);
+      init_memcached_client_pool(config_json, "user", 32, 256);
   mongoc_client_pool_t *mongodb_client_pool =
-      init_mongodb_client_pool(config_json, "user", 128);
+      init_mongodb_client_pool(config_json, "user", 256);
 
   if (memcached_client_pool == nullptr || mongodb_client_pool == nullptr) {
     return EXIT_FAILURE;
