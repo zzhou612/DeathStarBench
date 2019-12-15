@@ -16,7 +16,7 @@ template<class TClient>
 class ClientPool {
  public:
   ClientPool(const std::string &client_type, const std::string &addr,
-      int port, int min_size, int max_size, int timeout_ms, int keep_alive=-1);
+      int port, int min_size, int max_size, int timeout_ms, int keep_alive=1000);
   ~ClientPool();
 
   ClientPool(const ClientPool&) = delete;
@@ -102,10 +102,10 @@ TClient * ClientPool<TClient>::Pop() {
       client = _pool.front();
       _pool.pop_front();
       // if (!client->IsAlive() || !client->IsConnected()) {
-      // if (!client->IsAlive()) {
-      //   delete client;
-      //   client = new TClient(_addr, _port, _keep_alive);
-      // }
+      if (!client->IsAlive()) {
+        delete client;
+        client = new TClient(_addr, _port, _keep_alive);
+      }
     }
 
   } // cv_lock(_mtx)
