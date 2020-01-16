@@ -41,6 +41,9 @@ class ClientPool {
   std::mutex _mtx;
   std::condition_variable _cv;
 
+  TClient * GetClientFromPool();
+  TClient * ProduceClient();
+
 };
 
 template<class TClient>
@@ -73,44 +76,9 @@ ClientPool<TClient>::~ClientPool() {
 template<class TClient>
 TClient * ClientPool<TClient>::Pop() {
   TClient * client = nullptr;
-  std::unique_lock<std::mutex> cv_lock(_mtx); {
-    while (_pool.size() == 0) {
-      // Create a new a client if current pool size is less than
-      // the max pool size.
-      if (_curr_pool_size < _max_pool_size) {
-        try {
-          client = new TClient(_addr, _port, _keep_alive);
-          _curr_pool_size++;
-          break;
-        } catch (...) {
-          cv_lock.unlock();
-          return nullptr;
-        }
-      } else {
-        auto wait_time = std::chrono::system_clock::now() +
-            std::chrono::milliseconds(_timeout_ms);
-        bool wait_success = _cv.wait_until(cv_lock, wait_time,
-            [this] { return _pool.size() > 0; });
-        if (!wait_success) {
-          LOG(warning) << "ClientPool pop timeout";
-          cv_lock.unlock();
-          return nullptr;
-        }
-      }
-    }
-    if (!client){
-      client = _pool.front();
-      _pool.pop_front();
-      // if (!client->IsAlive() || !client->IsConnected()) {
-      if (!client->IsAlive()) {
-        delete client;
-        client = new TClient(_addr, _port, _keep_alive);
-      }
-    }
-
-  } // cv_lock(_mtx)
-  cv_lock.unlock();
-
+  client = GetClientFromPool();
+  if (!client)
+    client = ProduceClient();
   if (client) {
     try {
       client->Connect();
@@ -118,7 +86,7 @@ TClient * ClientPool<TClient>::Pop() {
       LOG(error) << "Failed to connect " + _client_type;
       _pool.push_back(client);
       throw;
-    }    
+    }
   }
   return client;
 }
@@ -135,11 +103,57 @@ template<class TClient>
 void ClientPool<TClient>::Remove(TClient *client) {
   std::unique_lock<std::mutex> lock(_mtx);
   delete client;
+  client = nullptr;
   _curr_pool_size--;
   lock.unlock();
 }
 
-} // namespace social_network
+template<class TClient>
+TClient * ClientPool<TClient>::GetClientFromPool() {
+  std::unique_lock<std::mutex> cv_lock(_mtx);
+  TClient * client = nullptr;
+  if (!_pool.empty()) {
+    client = _pool.front();
+    _pool.pop_front();
+  } else if (_curr_pool_size == _max_pool_size) {
+    auto wait_time = std::chrono::system_clock::now() +
+        std::chrono::milliseconds(_timeout_ms);
+    bool wait_success = _cv.wait_until(cv_lock, wait_time,
+        [this] { return _pool.size() > 0; });
+    if (!wait_success) {
+      LOG(warning) << "ClientPool pop timeout";
+      cv_lock.unlock();
+      return nullptr;
+    }
+    client = _pool.front();
+    _pool.pop_front();
+  }
+  if (client && !client->IsAlive()) {
+    delete client;
+    client = nullptr;
+    _curr_pool_size--;
+  }
+  cv_lock.unlock();
+  return client;
+}
 
+template<class TClient>
+TClient * ClientPool<TClient>::ProduceClient() {
+  std::unique_lock<std::mutex> lock(_mtx);
+  TClient * client = nullptr;
+  if (_curr_pool_size < _max_pool_size) {
+    try {
+      client = new TClient(_addr, _port, _keep_alive);
+      _curr_pool_size++;
+      lock.unlock();
+      return client;
+    } catch (...) {
+      lock.unlock();
+      return nullptr;
+    }
+  }
+}
+
+} // namespace social_network
 
 #endif //SOCIAL_NETWORK_MICROSERVICES_CLIENTPOOL_H
