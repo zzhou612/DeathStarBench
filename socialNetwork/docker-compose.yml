@@ -6,39 +6,47 @@ services:
 #  dns-social-network:
 #    image: defreitas/dns-proxy-server
 #    volumes:
-#      - /opt/dns-proxy-server/conf:/app/conf
-#      - /var/run/docker.sock:/var/run/docker.sock
-#      - /etc/resolv.conf:/etc/resolv.conf
+#        - /opt/dns-proxy-server/conf:/app/conf
+#        - /var/run/docker.sock:/var/run/docker.sock
+#        - /etc/resolv.conf:/etc/resolv.conf
 
   social-graph-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: social-graph-service
-#    ports:
-#      - 10000:9090
+    # ports:
+    # - 10000:9090
     restart: always
     entrypoint: SocialGraphService
+    cap_add:
+    - NET_ADMIN
 
   social-graph-mongodb:
     image: mongo
     hostname: social-graph-mongodb
-#    ports:
-#      - 27018:27017
+    # ports:
+    # - 27018:27017
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   social-graph-redis:
     image: redis
     hostname: social-graph-redis
-#    ports:
-#      - 6380:6379
+    # ports:
+    # - 6380:6379
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   write-home-timeline-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: write-home-timeline-service
     restart: always
     entrypoint: WriteHomeTimelineService
     depends_on:
-      - write-home-timeline-rabbitmq
+    - write-home-timeline-rabbitmq
+    cap_add:
+    - NET_ADMIN
 
   write-home-timeline-rabbitmq:
     image: rabbitmq
@@ -46,211 +54,263 @@ services:
     environment:
       RABBITMQ_ERLANG_COOKIE: "WRITE-HOME-TIMELINE-RABBITMQ"
       RABBITMQ_DEFAULT_VHOST: "/"
-#    ports:
-#      - 15672:15672
-#      - 5672:5672
+    # ports:
+    # - 15672:15672
+    # - 5672:5672
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   home-timeline-redis:
     image: redis
     hostname: home-timeline-redis
-#    ports:
-#      - 6381:6379
+    # ports:
+    # - 6381:6379
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   compose-post-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: compose-post-service
-#    ports:
-#      - 10001:9090
+    # ports:
+    # - 10001:9090
     restart: always
     entrypoint: ComposePostService
     depends_on:
-      - write-home-timeline-rabbitmq
+    - write-home-timeline-rabbitmq
+    cap_add:
+    - NET_ADMIN
 
   compose-post-redis:
     image: redis
     hostname: compose-post-redis
-#    ports:
-#      - 6382:6379
+    # ports:
+    # - 6382:6379
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   post-storage-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: post-storage-service
     ports:
-      - 10002:9090
+    - 10002:9090
     restart: always
     entrypoint: PostStorageService
+    cap_add:
+    - NET_ADMIN
 
   post-storage-memcached:
     image: memcached
     hostname: post-storage-memcached
-#    ports:
-#      - 11212:11211
+    # ports:
+    # - 11212:11211
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   post-storage-mongodb:
     image: mongo
     hostname: post-storage-mongodb
-#    ports:
-#      - 27019:27017
+    # ports:
+    # - 27019:27017
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   user-timeline-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: user-timeline-service
-#    ports:
-#      - 10003:9090
+    # ports:
+    # - 10003:9090
     restart: always
     entrypoint: UserTimelineService
+    cap_add:
+    - NET_ADMIN
 
   user-timeline-redis:
     image: redis
     hostname: user-timeline-redis
-#    ports:
-#      - 6383:6379
+    # ports:
+    # - 6383:6379
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   user-timeline-mongodb:
     image: mongo
     hostname: user-timeline-mongodb
-#    ports:
-#      - 27020:27017
+    # ports:
+    # - 27020:27017
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   url-shorten-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: url-shorten-service
-#    ports:
-#      - 10004:9090
+    # ports:
+    # - 10004:9090
     restart: always
     entrypoint: UrlShortenService
+    cap_add:
+    - NET_ADMIN
 
   url-shorten-memcached:
     image: memcached
     hostname: url-shorten-memcached
-#    ports:
-#      - 11213:11211
+    # ports:
+    # - 11213:11211
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   url-shorten-mongodb:
     image: mongo
     hostname: url-shorten-mongodb
-#    ports:
-#      - 27021:27017
+    # ports:
+    # - 27021:27017
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   user-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: user-service
-#    ports:
-#      - 10005:9090
+    # ports:
+    # - 10005:9090
     restart: always
     entrypoint: UserService
+    cap_add:
+    - NET_ADMIN
 
   user-memcached:
     image: memcached
     hostname: user-memcached
-#    ports:
-#      - 11214:11211
+    # ports:
+    # - 11214:11211
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   user-mongodb:
     image: mongo
     hostname: user-mongodb
-#    ports:
-#      - 27023:27017
+    # ports:
+    # - 27023:27017
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   media-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: media-service
-#    ports:
-#      - 10006:9090
+    # ports:
+    # - 10006:9090
     restart: always
     entrypoint: MediaService
+    cap_add:
+    - NET_ADMIN
 
   media-memcached:
     image: memcached
     hostname: media-memcached
-#    ports:
-#      - 11215:11211
+    # ports:
+    # - 11215:11211
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   media-mongodb:
     image: mongo
     hostname: media-mongodb
-#    ports:
-#      - 27024:27017
+    # ports:
+    # - 27024:27017
     restart: always
+    cap_add:
+    - NET_ADMIN
 
   text-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: text-service
-#    ports:
-#      - 10007:9090
+    # ports:
+    # - 10007:9090
     restart: always
     entrypoint: TextService
+    cap_add:
+    - NET_ADMIN
 
   unique-id-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: unique-id-service
-#    ports:
-#      - 10008:9090
+    # ports:
+    # - 10008:9090
     restart: always
     entrypoint: UniqueIdService
+    cap_add:
+    - NET_ADMIN
 
   user-mention-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: user-mention-service
-#    ports:
-#      - 10009:9090
+    # ports:
+    # - 10009:9090
     restart: always
     entrypoint: UserMentionService
+    cap_add:
+    - NET_ADMIN
 
   home-timeline-service:
-    image: yg397/social-network-microservices
+    image: zz586/social-network:docker-tc
     hostname: home-timeline-service
-#    ports:
-#      - 10010:9090
+    # ports:
+    # - 10010:9090
     restart: always
     entrypoint: HomeTimelineService
+    cap_add:
+    - NET_ADMIN
 
   nginx-thrift:
     image: yg397/openresty-thrift:xenial
     hostname: nginx-thrift
     ports:
-      - 8080:8080
+    - 8080:8080
     restart: always
     volumes:
-      - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
-      - ./nginx-web-server/pages:/usr/local/openresty/nginx/pages
-      - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
-      - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
-      - ./gen-lua:/gen-lua
+    - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
+    - ./nginx-web-server/pages:/usr/local/openresty/nginx/pages
+    - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+    - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
+    - ./gen-lua:/gen-lua
+    cap_add:
+    - NET_ADMIN
 
   media-frontend:
     image: yg397/media-frontend:xenial
     hostname: media-frontend
     ports:
-      - 8081:8080
+    - 8081:8080
     restart: always
     volumes:
-      - ./media-frontend/lua-scripts:/usr/local/openresty/nginx/lua-scripts
-      - ./media-frontend/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+    - ./media-frontend/lua-scripts:/usr/local/openresty/nginx/lua-scripts
+    - ./media-frontend/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+    cap_add:
+    - NET_ADMIN
 
   jaeger:
     image: jaegertracing/all-in-one:latest
     hostname: jaeger
     ports:
-#      - 5775:5775/udp
-#      - 6831:6831/udp
-#      - 6832:6832/udp
-#      - 5778:5778
-      - 16686:16686
-#      - 14268:14268
-#      - 9411:9411
+    # - 5775:5775/udp
+    # - 6831:6831/udp
+    # - 6832:6832/udp
+    # - 5778:5778
+    - 16686:16686
+    # - 14268:14268
+    # - 9411:9411
     restart: always
     environment:
-      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    cap_add:
+    - NET_ADMIN
