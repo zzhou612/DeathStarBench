@@ -68,8 +68,13 @@ if __name__ == '__main__':
     nodes = getNodes(file)
     edges = getEdges(file)
 
+  if len(sys.argv) < 3:
+    addr = "http://ath-1.ece.cornell.edu:8080"
+  else:
+    addr = sys.argv[2]
+
   # Use your cluster-ip here:
-  addr = "http://10.68.39.88:8080"
+  # addr = "http://10.68.39.88:8080"
   loop = asyncio.get_event_loop()
   future = asyncio.ensure_future(register(addr, nodes))
   loop.run_until_complete(future)
