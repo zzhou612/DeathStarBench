@@ -32,6 +32,7 @@ services:
   social-graph-redis:
     image: redis
     hostname: social-graph-redis
+    command: [sh, -c, "rm -f /data/dump.rdb && redis-server --save \"\"  --appendonly no"]  # disable persistence
     # ports:
     # - 6380:6379
     restart: always
@@ -64,6 +65,7 @@ services:
   home-timeline-redis:
     image: redis
     hostname: home-timeline-redis
+    command: [sh, -c, "rm -f /data/dump.rdb && redis-server --save \"\"  --appendonly no"]  # disable persistence
     # ports:
     # - 6381:6379
     restart: always
@@ -85,6 +87,7 @@ services:
   compose-post-redis:
     image: redis
     hostname: compose-post-redis
+    command: [sh, -c, "rm -f /data/dump.rdb && redis-server --save \"\"  --appendonly no"]  # disable persistence
     # ports:
     # - 6382:6379
     restart: always
@@ -132,6 +135,7 @@ services:
   user-timeline-redis:
     image: redis
     hostname: user-timeline-redis
+    command: [sh, -c, "rm -f /data/dump.rdb && redis-server --save \"\"  --appendonly no"]  # disable persistence
     # ports:
     # - 6383:6379
     restart: always
