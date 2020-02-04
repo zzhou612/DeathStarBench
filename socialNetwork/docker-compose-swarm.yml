@@ -11,7 +11,7 @@ services:
 #      - /etc/resolv.conf:/etc/resolv.conf
 
   social-graph-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: social-graph-service
 #    ports:
 #      - 10000:9090
@@ -49,7 +49,7 @@ services:
           - node.hostname == ath-4
 
   write-home-timeline-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: write-home-timeline-service
     entrypoint: WriteHomeTimelineService
     depends_on:
@@ -91,7 +91,7 @@ services:
           - node.hostname == ath-4
 
   compose-post-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: compose-post-service
 #    ports:
 #      - 10001:9090
@@ -119,7 +119,7 @@ services:
           - node.hostname == ath-4
 
   post-storage-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: post-storage-service
     ports:
       - 10002:9090
@@ -156,7 +156,7 @@ services:
           - node.hostname == ath-4
 
   user-timeline-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: user-timeline-service
 #    ports:
 #      - 10003:9090
@@ -194,7 +194,7 @@ services:
           - node.hostname == ath-4
 
   url-shorten-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: url-shorten-service
 #    ports:
 #      - 10004:9090
@@ -231,7 +231,7 @@ services:
           - node.hostname == ath-4
 
   user-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: user-service
 #    ports:
 #      - 10005:9090
@@ -268,7 +268,7 @@ services:
           - node.hostname == ath-4
 
   media-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: media-service
 #    ports:
 #      - 10006:9090
@@ -305,7 +305,7 @@ services:
           - node.hostname == ath-4
 
   text-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: text-service
 #    ports:
 #      - 10007:9090
@@ -318,7 +318,7 @@ services:
           - node.hostname == ath-1
 
   unique-id-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: unique-id-service
 #    ports:
 #      - 10008:9090
@@ -331,7 +331,7 @@ services:
           - node.hostname == ath-4
 
   user-mention-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: user-mention-service
 #    ports:
 #      - 10009:9090
@@ -344,7 +344,7 @@ services:
           - node.hostname == ath-4
 
   home-timeline-service:
-    image: ${USER}/social-network-swarm:keep-alive
+    image: zz586/social-network-swarm:keep-alive
     hostname: home-timeline-service
 #    ports:
 #      - 10010:9090
