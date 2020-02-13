@@ -1,28 +1,26 @@
+#include <signal.h>
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/server/TThreadedServer.h>
-#include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
+#include <thrift/transport/TServerSocket.h>
 #include <nlohmann/json.hpp>
-#include <signal.h>
 
+#include "../../gen-cpp/social_network_types.h"
 #include "../ClientPool.h"
 #include "../RedisClient.h"
 #include "../logger.h"
 #include "../tracing.h"
 #include "../utils.h"
 #include "../utils_mongodb.h"
-#include "../../gen-cpp/social_network_types.h"
 #include "UserTimelineHandler.h"
 
-using apache::thrift::server::TThreadedServer;
-using apache::thrift::transport::TServerSocket;
-using apache::thrift::transport::TFramedTransportFactory;
 using apache::thrift::protocol::TBinaryProtocolFactory;
+using apache::thrift::server::TThreadedServer;
+using apache::thrift::transport::TFramedTransportFactory;
+using apache::thrift::transport::TServerSocket;
 using namespace social_network;
 
-void sigintHandler(int sig) {
-  exit(EXIT_SUCCESS);
-}
+void sigintHandler(int sig) { exit(EXIT_SUCCESS); }
 
 int main(int argc, char *argv[]) {
   signal(SIGINT, sigintHandler);
@@ -35,26 +33,33 @@ int main(int argc, char *argv[]) {
   }
 
   int port = config_json["user-timeline-service"]["port"];
-  std::string redis_addr =
-      config_json["user-timeline-redis"]["addr"];
+
+  std::string redis_addr = config_json["user-timeline-redis"]["addr"];
   int redis_port = config_json["user-timeline-redis"]["port"];
+  int redis_connections = config_json["user-timeline-redis"]["connections"];
+  int redis_timeout_ms = config_json["user-timeline-redis"]["timeout_ms"];
 
   int post_storage_port = config_json["post-storage-service"]["port"];
   std::string post_storage_addr = config_json["post-storage-service"]["addr"];
+  int post_storage_connections =
+      config_json["post-storage-service"]["connections"];
+  int post_storage_timeout_ms =
+      config_json["post-storage-service"]["timeout_ms"];
+
+  int mongodb_connections = config_json["user-timeline-mongodb"]["connections"];
 
   auto mongodb_client_pool = init_mongodb_client_pool(
-      config_json, "user-timeline", 256);
-
-  ClientPool<RedisClient> redis_client_pool("user-timeline-redis", 
-      redis_addr, redis_port, 0, 256, 1000);
-
+      config_json, "user-timeline", mongodb_connections);
   if (mongodb_client_pool == nullptr) {
     return EXIT_FAILURE;
   }
 
-  ClientPool<ThriftClient<PostStorageServiceClient>>
-      post_storage_client_pool("post-storage-client", post_storage_addr,
-                               post_storage_port, 0, 512, 1000);
+  ClientPool<RedisClient> redis_client_pool("user-timeline-redis", redis_addr,
+                                            redis_port, 0, redis_connections,
+                                            redis_timeout_ms);
+  ClientPool<ThriftClient<PostStorageServiceClient>> post_storage_client_pool(
+      "post-storage-client", post_storage_addr, post_storage_port, 0,
+      post_storage_connections, post_storage_timeout_ms);
 
   mongoc_client_t *mongodb_client = mongoc_client_pool_pop(mongodb_client_pool);
   if (!mongodb_client) {
@@ -71,18 +76,14 @@ int main(int argc, char *argv[]) {
   }
   mongoc_client_pool_push(mongodb_client_pool, mongodb_client);
 
-  TThreadedServer server (
-      std::make_shared<UserTimelineServiceProcessor>(
-          std::make_shared<UserTimelineHandler>(
-              &redis_client_pool, mongodb_client_pool,
-              &post_storage_client_pool)),
-      std::make_shared<TServerSocket>("0.0.0.0", port),
-      std::make_shared<TFramedTransportFactory>(),
-      std::make_shared<TBinaryProtocolFactory>()
-  );
+  TThreadedServer server(std::make_shared<UserTimelineServiceProcessor>(
+                             std::make_shared<UserTimelineHandler>(
+                                 &redis_client_pool, mongodb_client_pool,
+                                 &post_storage_client_pool)),
+                         std::make_shared<TServerSocket>("0.0.0.0", port),
+                         std::make_shared<TFramedTransportFactory>(),
+                         std::make_shared<TBinaryProtocolFactory>());
 
   std::cout << "Starting the user-timeline-service server..." << std::endl;
   server.serve();
-
-
 }
