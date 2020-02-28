@@ -9,13 +9,13 @@
   "social-graph-mongodb": {
     "addr": "social-graph-mongodb",
     "port": 27017,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "social-graph-redis": {
     "addr": "social-graph-redis",
     "port": 6379,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "write-home-timeline-service": {
@@ -28,13 +28,13 @@
   "write-home-timeline-rabbitmq": {
     "addr": "write-home-timeline-rabbitmq",
     "port": 5672,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "home-timeline-redis": {
     "addr": "home-timeline-redis",
     "port": 6379,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "compose-post-service": {
@@ -46,7 +46,7 @@
   "compose-post-redis": {
     "addr": "compose-post-redis",
     "port": 6379,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "user-timeline-service": {
@@ -58,13 +58,13 @@
   "user-timeline-mongodb": {
     "addr": "user-timeline-mongodb",
     "port": 27017,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "user-timeline-redis": {
     "addr": "user-timeline-redis",
     "port": 6379,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "post-storage-service": {
@@ -76,13 +76,13 @@
   "post-storage-mongodb": {
     "addr": "post-storage-mongodb",
     "port": 27017,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "post-storage-memcached": {
     "addr": "post-storage-memcached",
     "port": 11211,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "unique-id-service": {
@@ -118,13 +118,13 @@
   "url-shorten-memcached": {
     "addr": "url-shorten-memcached",
     "port": 11211,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "url-shorten-mongodb": {
     "addr": "url-shorten-mongodb",
     "port": 27017,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "user-service": {
@@ -136,13 +136,13 @@
   "user-memcached": {
     "addr": "user-memcached",
     "port": 11211,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "user-mongodb": {
     "addr": "user-mongodb",
     "port": 27017,
-    "connections": 256,
+    "connections": 512,
     "timeout_ms": 1000
   },
   "home-timeline-service": {

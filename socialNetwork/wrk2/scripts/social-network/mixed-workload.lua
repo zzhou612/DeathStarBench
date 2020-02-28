@@ -224,9 +224,9 @@ end
 -- read:write = 85:15
 request = function()
   local read_write_coin = math.random()
-  if read_write_coin <= 0.95 then
+  if read_write_coin <= 0.85 then
     home_user_coin = math.random()
-    if home_user_coin <= 0.95 then
+    if home_user_coin <= 0.85 then
       return read_home_timeline()
     else
       return read_user_timeline()
